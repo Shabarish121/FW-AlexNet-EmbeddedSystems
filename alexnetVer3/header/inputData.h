@@ -16,6 +16,7 @@
 #include <math.h>
 #include "allocMem.h"
 #include <dirent.h> //reading directory
+#include <stdlib.h>
 
 struct Conv{
 	int filters;
@@ -31,6 +32,7 @@ struct Pooling{
 struct Dense{
 	int units;
 }denseParams[3];
+int imageNo;
 
 void Conv2dInput(double*** imageData,double ****weights,double ****featureVector);
 void Conv2d(double ****ptr,double ****weights,double ****featureVector,int layerNo);
@@ -44,6 +46,7 @@ void initParams();
 void readWeightsConv(double *****weights);
 void readWeightsDense(double ***weights);
 void readBiases(double **weightsAct);
+void readImageFile(double**** array,int* label);
 
 int outputShape;
 

@@ -9,6 +9,7 @@
 #include "header/inputData.h"
 
 int main(){
+
 	Image image;
 	struct timeval tt1, tt2;
 	double elapsedTime;
@@ -24,46 +25,52 @@ int main(){
 	predLabel=malloc(200*sizeof(int));
 	char dataPath[50];
 	char dataPathFull[50];
-	int imageNo = 0;
-	for(int i=0;i<4;i++){
-		switch(i)
-		{
-		case 0:strcpy(dataPath,"testImages/Maize/");
-		break;
-		case 1:strcpy(dataPath,"testImages/Roggen/");
-		break;
-		case 2:strcpy(dataPath,"testImages/Triticale/");
-		break;
-		case 3:strcpy(dataPath,"testImages/Wheat/");
-		break;
-		}
-		DIR *folder;
-		struct dirent *entry;
-		folder = opendir(dataPath);
-	    if(folder == NULL)
-	    {
-	        perror("Unable to read directory");
-	        return(1);
-	    }
-	    while( (entry=readdir(folder)) )
-	    {
-	    	if(strcmp(entry->d_name,".")!=0){
-	    		if(strcmp(entry->d_name,"..")!=0){
-	    			strcpy(dataPathFull,dataPath);
-	    			strcat(dataPathFull,entry->d_name);
-	            	Image_load(&image, dataPathFull);
-	            	if(image.data == NULL){
-	            		printf("%s",entry->d_name);
-	            	}
+	gettimeofday(&tt1, NULL);
+	char* flag="file1";
+	if(strcmp(flag,"file")==0){
+		readImageFile(imageData,label);
+	}else{
+		for(int i=0;i<4;i++){
+			switch(i)
+			{
+			case 0:strcpy(dataPath,"testImages/Maize/");
+			break;
+			case 1:strcpy(dataPath,"testImages/Roggen/");
+			break;
+			case 2:strcpy(dataPath,"testImages/Triticale/");
+			break;
+			case 3:strcpy(dataPath,"testImages/Wheat/");
+			break;
+			}
+			DIR *folder;
+			struct dirent *entry;
+			folder = opendir(dataPath);
+			if(folder == NULL)
+			{
+				perror("Unable to read directory");
+				return(1);
+			}
+			while( (entry=readdir(folder)) )
+			{
+				if(strcmp(entry->d_name,".")!=0){
+					if(strcmp(entry->d_name,"..")!=0){
+						strcpy(dataPathFull,dataPath);
+						strcat(dataPathFull,entry->d_name);
+						Image_load(&image, dataPathFull);
+						if(image.data == NULL){
+							printf("%s",entry->d_name);
+						}
 
-	            	ON_ERROR_EXIT(image.data == NULL, "Error in loading the image");
-	            	imageToArray(&image,imageData[imageNo]);
-	            	label[imageNo]=i;
-	            	imageNo++;
-	    		}
-	    	}
-	    }
-	    closedir(folder);
+						ON_ERROR_EXIT(image.data == NULL, "Error in loading the image");
+						imageToArray(&image,imageData[imageNo]);
+						label[imageNo]=i;
+						imageNo++;
+					}
+				}
+			}
+			closedir(folder);
+	}
+
 	}
 
 
@@ -77,7 +84,7 @@ int main(){
 	readWeightsDense(weightsDense);
 	readBiases(biases);
 
-	gettimeofday(&tt1, NULL);
+	//gettimeofday(&tt1, NULL);
 	for(int imageIndex = 0;imageIndex < imageNo;imageIndex++){
 		featureVector=reallocMemFeatureVectorConv(1,0);
 		Conv2dInput(imageData[imageIndex],weightsConv[0],featureVector);

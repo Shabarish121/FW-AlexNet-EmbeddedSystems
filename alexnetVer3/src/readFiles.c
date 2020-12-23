@@ -5,6 +5,61 @@
 #include <stdio.h>
 #include<header/inputData.h>
 
+void readImageFile(double**** array,int* label){
+	FILE *image_file;
+	char buffer1[65536] ;
+	char *record2,*line2;
+	int a=0,b=0,c=0,d=0;
+
+	image_file = fopen("weightFiles/testImages.csv","r");
+	if(image_file == NULL)
+	{
+	   printf("\n file opening failed ");
+	   //return -1 ;
+	}
+	while((line2=fgets(buffer1,sizeof(buffer1),image_file))!=NULL)
+	{
+		record2 = strtok(line2,",");
+		while(record2 != NULL)
+		{
+			array[a][b][c][d] = atof(record2)/255 ;
+			record2 = strtok(NULL,",");
+			d++;
+		}
+		d=0;
+		c++;
+		if(c==227){
+			c=0;
+			b++;
+		}
+		if(b==3){
+			b=0;
+			a++;
+		}
+	}
+	fclose(image_file);
+
+	image_file = fopen("weightFiles/labels.csv","r");
+	if(image_file == NULL)
+	{
+	   printf("\n file opening failed ");
+	   //return -1 ;
+	}
+	a = 0;
+	while((line2=fgets(buffer1,sizeof(buffer1),image_file))!=NULL){
+		record2 = strtok(line2,",");
+		while(record2 != NULL){
+			label[a] = atof(record2) ;
+			record2 = strtok(NULL,",");
+			a++;
+		}
+
+	}
+	imageNo = a;
+	fclose(image_file);
+
+}
+
 void readWeightsConv(double *****weights){
 	for(int layerNo=0;layerNo<5;layerNo++){
 		int kernel=convParams[layerNo].kernels;
@@ -130,6 +185,7 @@ void readBiases(double **weightsAct){
 	  b=0;
 	  a++;
 	}
+
 	fclose(Weight_file);
 
 }
