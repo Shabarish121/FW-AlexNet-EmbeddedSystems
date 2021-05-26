@@ -1,22 +1,22 @@
 #include"allocMem.h"
-double ****allocMemImage(int noOfImages,int channel,int width,int height){
+float ****allocMemImage(int noOfImages,int channel,int width,int height){
 	int d,e,f;
-	double ****array;
-	array = malloc(noOfImages*sizeof(double *));
+	float ****array;
+	array = malloc(noOfImages*sizeof(float *));
 	for (d=0;d<noOfImages;d++){
-		array[d]=malloc(channel*sizeof(double *));;
+		array[d]=malloc(channel*sizeof(float *));;
 	}
 	//array = malloc(channel*sizeof(int *));
 	for (d=0;d<noOfImages;d++){
 		for(e=0;e<channel;e++){
-			array[d][e]=malloc(width*sizeof(double *));;
+			array[d][e]=malloc(width*sizeof(float *));;
 		}
 
 	}
 	for(d=0;d<noOfImages;d++){
 		for(e=0;e<channel;e++){
 			for(f=0;f<width;f++){
-				array[d][e][f]=malloc(height*sizeof(double));
+				array[d][e][f]=malloc(height*sizeof(float));
 			}
 		}
 	}
@@ -24,11 +24,11 @@ double ****allocMemImage(int noOfImages,int channel,int width,int height){
 
 }
 
-double *****allocMemWeightsConv(){
+float *****allocMemWeightsConv(){
 	int d,e,f;
-	double *****array;
+	float *****array;
 	int kernel,filter,prevFilter;
-	array=malloc(5*sizeof(double *));
+	array=malloc(5*sizeof(float *));
 	for(int layerNo=0;layerNo<5;layerNo++){
 
 
@@ -39,23 +39,23 @@ double *****allocMemWeightsConv(){
 		}else if(layerNo>0&&layerNo<5){
 			prevFilter=convParams[layerNo-1].filters;
 		}
-		array[layerNo]=malloc(kernel*sizeof(double *));
+		array[layerNo]=malloc(kernel*sizeof(float *));
 
 		for (d=0;d<kernel;d++){
-			array[layerNo][d]=malloc(kernel*sizeof(double *));
+			array[layerNo][d]=malloc(kernel*sizeof(float *));
 		}
 
 
 		for(d=0;d<kernel;d++){
 			for(e=0;e<kernel;e++){
-				array[layerNo][d][e]=malloc(prevFilter*sizeof(double *));
+				array[layerNo][d][e]=malloc(prevFilter*sizeof(float *));
 			}
 		}
 
 		for(d=0;d<kernel;d++){
 			for(e=0;e<kernel;e++){
 				for(f=0;f<prevFilter;f++){
-					array[layerNo][d][e][f]=malloc(filter*sizeof(double));
+					array[layerNo][d][e][f]=malloc(filter*sizeof(float));
 				}
 			}
 		}
@@ -63,11 +63,11 @@ double *****allocMemWeightsConv(){
 	return array;
 
 }
-double ***allocMemWeightsDense(){
+float ***allocMemWeightsDense(){
 	int d;
-	double ***array;
+	float ***array;
 	int prevInput;
-	array=malloc(3*sizeof(double *));
+	array=malloc(3*sizeof(float *));
 	for(int layerNo=0;layerNo<3;layerNo++){
 		int units=denseParams[layerNo].units;
 		if(layerNo==0){
@@ -75,9 +75,9 @@ double ***allocMemWeightsDense(){
 		}else{
 			prevInput=denseParams[layerNo-1].units;
 		}
-		array[layerNo]= malloc(prevInput*sizeof(double *));
+		array[layerNo]= malloc(prevInput*sizeof(float *));
 		for (d=0;d<prevInput;d++){
-			array[layerNo][d]=malloc(units*sizeof(double));
+			array[layerNo][d]=malloc(units*sizeof(float));
 		}
 	}
 
@@ -85,23 +85,23 @@ double ***allocMemWeightsDense(){
 
 }
 
-double **allocMemBiases(){
-	double **array;
+float **allocMemBiases(){
+	float **array;
 	int i;
-	array=malloc(8*sizeof(double *));
+	array=malloc(8*sizeof(float *));
 	for(i=0;i<5;i++){
-		array[i] = malloc(convParams[i].filters*sizeof(double));
+		array[i] = malloc(convParams[i].filters*sizeof(float));
 	}
 	for(i=5;i<8;i++){
-		array[i] = malloc(denseParams[i-5].units*sizeof(double));
+		array[i] = malloc(denseParams[i-5].units*sizeof(float));
 	}
 	return array;
 
 }
-double ****reallocMemFeatureVectorConv(int layerNo,bool pooling){
+float ****reallocMemFeatureVectorConv(int layerNo,bool pooling){
 
 	int e,f;
-	double ****array;
+	float ****array;
 	int filter=convParams[layerNo-1].filters;
 	if(layerNo==1){
 		if(!pooling){
@@ -117,28 +117,28 @@ double ****reallocMemFeatureVectorConv(int layerNo,bool pooling){
 			outputShape = ceil(((outputShape-poolParams[abs(layerNo-3)].kernels)/poolParams[abs(layerNo-3)].strides+1));
 		}
 	}
-	array = malloc(1*sizeof(double *));
-	array[0]=malloc(outputShape*sizeof(double *));
+	array = malloc(1*sizeof(float *));
+	array[0]=malloc(outputShape*sizeof(float *));
 
 	for(e=0;e<outputShape;e++){
-		array[0][e]=malloc(outputShape*sizeof(double *));
+		array[0][e]=malloc(outputShape*sizeof(float *));
 	}
 
 
 	for(e=0;e<outputShape;e++){
 		for(f=0;f<outputShape;f++){
-			array[0][e][f]=malloc(filter*sizeof(double));
+			array[0][e][f]=malloc(filter*sizeof(float));
 		}
 	}
 	return array;
 }
 
-double *reallocMemFeatureVectorDense(int layerNo){
+float *reallocMemFeatureVectorDense(int layerNo){
 
-	double *array;
+	float *array;
 	int units=denseParams[layerNo-1].units;
 	outputShape=outputShape*outputShape*convParams[4].filters;
-	array = malloc(units*sizeof(double));
+	array = malloc(units*sizeof(float));
 
 	return array;
 }

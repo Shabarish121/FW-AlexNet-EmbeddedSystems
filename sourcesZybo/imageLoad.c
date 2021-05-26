@@ -1,5 +1,5 @@
 #include "inputData.h"
-void bmp_load(char *bmp,double ***imageData)
+void bmp_load(char *bmp,float ***imageData)
 {
     //short y,x;
    // short XImage,YImage;
@@ -37,7 +37,7 @@ void bmp_load(char *bmp,double ***imageData)
 	   int channelInc=0;
 	   for(int row=226;row>=0;row--){
 		   for(int col=0;col<227;col++){
-			   imageData[channel][row][col]=(double)(unsigned short int)line_buf[channel+channelInc]/255;
+			   imageData[channel][row][col]=(float)(unsigned short int)line_buf[channel+channelInc]/255;
 			   channelInc = channelInc+3;
 		   }
 		   channelInc = channelInc+3;

@@ -6,6 +6,7 @@ void initParams(){
 	int kernelsPooling[3]={3,3,3};
 	int stridesPooling[3]={2,2,2};
 	int unitsDense[3]={512,64,4};
+	imagesPerClass = 25;
 	for(int i=0;i<5;i++){
 		convParams[i].filters=filtersConv[i];
 		convParams[i].kernels=kernelsConv[i];

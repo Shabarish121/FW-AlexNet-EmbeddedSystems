@@ -2,11 +2,11 @@
 #include "inputData.h"
 #ifndef HEADER_ALLOCMEM_H_
 #define HEADER_ALLOCMEM_H_
-double ****allocMemImage(int noOfImages,int channel,int width,int height);
-double *****allocMemWeightsConv();
-double ***allocMemWeightsDense();
-double **allocMemBiases();
-double ****reallocMemFeatureVectorConv(int layerNo,bool pooling);
-double *reallocMemFeatureVectorDense(int layerNo);
+float ****allocMemImage(int noOfImages,int channel,int width,int height);
+float *****allocMemWeightsConv();
+float ***allocMemWeightsDense();
+float **allocMemBiases();
+float ****reallocMemFeatureVectorConv(int layerNo,bool pooling);
+float *reallocMemFeatureVectorDense(int layerNo);
 
 #endif

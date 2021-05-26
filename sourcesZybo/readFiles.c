@@ -1,6 +1,6 @@
 #include "inputData.h"
 
-void readWeightsConv(double *****weights){
+void readWeightsConv(float *****weights){
 
 	for(int layerNo=0;layerNo<5;layerNo++){
 		int kernel=convParams[layerNo].kernels;
@@ -14,9 +14,10 @@ void readWeightsConv(double *****weights){
 		}else if(layerNo+1>1&&layerNo+1<6){
 			prevFilter=convParams[layerNo-1].filters;
 		}
-		u32 file_size = (kernel*kernel * filter * prevFilter);
+		int lastLineCheck =kernel*kernel * prevFilter;
+		u32 file_size = (kernel*kernel * filter * prevFilter*16);
 		UINT NumBytesRead;
-		char DestinationAddress[kernel*kernel * filter * prevFilter];
+		char DestinationAddress[((kernel*kernel * filter)-1) * prevFilter*16];
 		FRESULT result;
 		switch(layerNo+1)
 		{
@@ -32,7 +33,7 @@ void readWeightsConv(double *****weights){
 		break;
 		}
 
-
+		int lineNo=0;
 		if(result != FR_OK)
 		{
 		   printf("\n file opening failed ");
@@ -41,14 +42,19 @@ void readWeightsConv(double *****weights){
 		FRESULT read_result = f_read( & filePointer, (void * ) DestinationAddress, file_size, & NumBytesRead);
 		  if (read_result == FR_OK) {
 		    line = strtok_r(DestinationAddress, "\n", & temp);
-		    while (line != NULL)
+		    while (line != NULL && lineNo!=lastLineCheck  )
 		    {
+		    	lineNo++;
+		    	//printf("Line %d : %s \n", lineNo, line);
+		    	//xil_printf("Line %d : %s \n", lineNo, line);
 		    	value = strtok_r(line, ",", & line);
 
 				while(value != NULL)
 				{
+					weights[layerNo][a][b][c][d] = atof(value) ;
 					value = strtok_r(NULL, ",", & line);
-					weights[layerNo][a][b][c][d++] = atof(value) ;
+
+					d++;
 				}
 				d=0;
 				c++;
@@ -69,22 +75,21 @@ void readWeightsConv(double *****weights){
 
 }
 
-void readWeightsDense(double ***weights){
+void readWeightsDense(float ***weights){
 	for(int layerNo=0;layerNo<3;layerNo++){
-		char buffer1[65536] ;
-		char *record2,*line2;
 		int a=0,b=0,prevInput;
 		FIL filePointer;
 		int units=denseParams[layerNo].units;
+		int lineNo=0;
 		if(layerNo+1==1){
 			prevInput=1024;
 		}
 		else{
 			prevInput=denseParams[layerNo-1].units;
 		}
-		u32 file_size = (prevInput*units);
+		u32 file_size = (prevInput*units*16);
 		UINT NumBytesRead;
-		char DestinationAddress[prevInput*units];
+		char DestinationAddress[prevInput*units*16];
 		char * temp,*line,*value;
 		FRESULT result;
 		switch(layerNo+1)
@@ -105,13 +110,17 @@ void readWeightsDense(double ***weights){
 
 		if (read_result == FR_OK) {
 			line = strtok_r(DestinationAddress, "\n", & temp);
-		    while (line != NULL)
+		    while (line != NULL&& lineNo!=prevInput)
 		    {
+		    	lineNo++;
+		    	//printf("Line %d : %s \n", lineNo, line);
 		    	value = strtok_r(line, ",", & line);
 		    	while(value != NULL)
 		    	{
+		    		weights[layerNo][a][b]= atof(value) ;
+		    		b++;
 		    		value = strtok_r(NULL, ",", & line);
-		    		weights[layerNo][a][b++]= atof(value) ;
+
 		    	}
 		    	if(b==units){
 		    		b=0;
@@ -125,15 +134,16 @@ void readWeightsDense(double ***weights){
 
 
 
-void readBiases(double **weightsAct){
-	char buffer1[65536] ;
-	char *record2,*line2;
+void readBiases(float **weightsAct){
+
+
 	int a=0,b=0;
 	FRESULT result;
 	FIL filePointer;
-	u32 file_size = (convParams[0].filters+convParams[1].filters+convParams[2].filters+convParams[3].filters+convParams[4].filters+denseParams[0].units+denseParams[1].units+denseParams[2].units);
+	int lineNo=0;
+	u32 file_size = ((convParams[0].filters+convParams[1].filters+convParams[2].filters+convParams[3].filters+convParams[4].filters+denseParams[0].units+denseParams[1].units+denseParams[2].units))*16;
 	UINT NumBytesRead;
-	char DestinationAddress[convParams[0].filters+convParams[1].filters+convParams[2].filters+convParams[3].filters+convParams[4].filters+denseParams[0].units+denseParams[1].units+denseParams[2].units];
+	char DestinationAddress[(convParams[0].filters+convParams[1].filters+convParams[2].filters+convParams[3].filters+convParams[4].filters+denseParams[0].units+denseParams[1].units+denseParams[2].units)*16];
 	char * temp,*line,*value;
 	result = f_open( & filePointer, "0:/biases.csv", FA_READ);
 	if(result != FR_OK)
@@ -145,13 +155,15 @@ void readBiases(double **weightsAct){
 
 	if (read_result == FR_OK) {
 		line = strtok_r(DestinationAddress, "\n", & temp);
-	    while (line != NULL)
+	    while (line != NULL && lineNo!=8)
 	    {
+	    	lineNo++;
 	    	value = strtok_r(line, ",", & line);
-	    	while(record2 != NULL)
+	    	while(value != NULL)
 	    	{
-	    		weightsAct[a][b++]= atof(record2) ;
-	    		record2 = strtok(NULL,",");
+	    		weightsAct[a][b]= atof(value) ;
+	    		b++;
+	    		value = strtok_r(NULL,",", &line);
 
 	    	}
 	    	b=0;
